@@ -9,7 +9,14 @@ import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { getWeather } from "@/services/ApiService";
 import type { WeatherData } from "@/interfaces/WeatherData";
-import { Search, Sunrise, Sunset } from "lucide-vue-next";
+import {
+  Droplets,
+  Heart,
+  Search,
+  Sunrise,
+  Sunset,
+  Wind,
+} from "lucide-vue-next";
 
 const toast = useToast();
 
@@ -73,28 +80,37 @@ onMounted(() => {
     <div class="text-3xl font-bold mt-5">
       Wetter in {{ weather?.name }}, {{ weather?.sys.country }}
     </div>
-    <div class="text-3xl font-bold">{{ weather?.main.temp }} °C</div>
-    <div class="text-lg font-bold mt-4">
-      Gefühlte {{ weather?.main.feels_like }} °C
-    </div>
-    <div class="flex flex-row text-lg font-bold items-center">
+    <div class="flex flex-row gap-4 text-3xl font-bold items-center">
       <img
-        :src="`https://openweathermap.org/img/wn/${weather?.weather[0].icon}.png`"
+        :src="`https://openweathermap.org/img/wn/${weather?.weather[0].icon}@2x.png`"
         alt="Weather Icon"
       />
-      {{ weather?.weather[0].description }}
+      <div class="flex flex-col">
+        <div>{{ weather?.main.temp }} °C</div>
+        <div>
+          {{ weather?.weather[0].description }}
+        </div>
+      </div>
     </div>
-    <div class="text-lg font-bold">
-      Luftfeuchtigkeit: {{ weather?.main.humidity }}%
-    </div>
-    <div class="text-lg font-bold">
-      Windgeschwindigkeit: {{ weather?.wind.speed }} km/h
-    </div>
-    <div class="flex flex-row gap-4 text-lg font-bold mt-1">
-      <Sunrise /> {{ formatTimestamp(weather?.sys.sunrise || 0) }} Uhr
-    </div>
-    <div class="flex flex-row gap-4 text-lg font-bold">
-      <Sunset /> {{ formatTimestamp(weather?.sys.sunset || 0) }} Uhr
+    <Divider />
+    <div class="flex flex-col text-lg font-bold mt-8">
+      <div class="flex flex-row gap-2">
+        <Heart /> Gefühlt: {{ weather?.main.feels_like }} °C
+      </div>
+      <div class="flex flex-row gap-2">
+        <Droplets /> Luftfeuchtigkeit: {{ weather?.main.humidity }}%
+      </div>
+      <div class="flex flex-row gap-2">
+        <Wind /> Windgeschwindigkeit: {{ weather?.wind.speed }} km/h
+      </div>
+      <div class="flex flex-row gap-2">
+        <Sunrise /> Sonnenaufgang:
+        {{ formatTimestamp(weather?.sys.sunrise || 0) }}
+      </div>
+      <div class="flex flex-row gap-2">
+        <Sunset /> Sonnenuntergang:
+        {{ formatTimestamp(weather?.sys.sunset || 0) }}
+      </div>
     </div>
   </Panel>
 </template>
