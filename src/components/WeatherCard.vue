@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import { useToast } from "primevue/usetoast";
 import Panel from "primevue/panel";
 import Divider from "primevue/divider";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
-import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
 import { getWeather } from "@/services/ApiService";
 import type { WeatherData } from "@/interfaces/WeatherData";
-import { Search } from "lucide-vue-next";
+import { Search, Sunrise, Sunset } from "lucide-vue-next";
 
 const toast = useToast();
 
@@ -33,18 +33,26 @@ async function fetchWeather(city: string) {
   }
 }
 
+function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleTimeString("de-DE", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 onMounted(() => {
   fetchWeather("Berlin");
 });
 </script>
 
 <template>
-  <Panel class="w-fit p-4">
+  <Panel class="w-fit p-4 m-4">
     <template #header>
       <div class="flex flex-col">
-      <h2 class="text-3xl font-bold">Jasons Wettervorhersage:</h2>
-    <Divider />
-    </div>
+        <h2 class="text-3xl font-bold">Jasons Wettervorhersage:</h2>
+        <Divider />
+      </div>
     </template>
     <div class="flex flex-row gap-4">
       <IconField class="flex flex-grow">
@@ -58,11 +66,11 @@ onMounted(() => {
           placeholder="Suche nach einem Ort"
         />
       </IconField>
-      <Button @click="fetchWeather(inputCity)" outlined >
+      <Button @click="fetchWeather(inputCity)" outlined>
         <Search />
       </Button>
     </div>
-    <div class="text-2xl font-bold mt-5">
+    <div class="text-3xl font-bold mt-5">
       Wetter in {{ weather?.name }}, {{ weather?.sys.country }}
     </div>
     <div class="text-3xl font-bold">{{ weather?.main.temp }} °C</div>
@@ -77,10 +85,16 @@ onMounted(() => {
       {{ weather?.weather[0].description }}
     </div>
     <div class="text-lg font-bold">
-      Feuchtigkeit: {{ weather?.main.humidity }}%
+      Luftfeuchtigkeit: {{ weather?.main.humidity }}%
     </div>
     <div class="text-lg font-bold">
       Windgeschwindigkeit: {{ weather?.wind.speed }} km/h
+    </div>
+    <div class="flex flex-row gap-4 text-lg font-bold mt-1">
+      <Sunrise /> {{ formatTimestamp(weather?.sys.sunrise || 0) }} Uhr
+    </div>
+    <div class="flex flex-row gap-4 text-lg font-bold">
+      <Sunset /> {{ formatTimestamp(weather?.sys.sunset || 0) }} Uhr
     </div>
   </Panel>
 </template>
