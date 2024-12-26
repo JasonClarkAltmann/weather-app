@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
+import ConfettiExplosion from "vue-confetti-explosion";
 import { useToast } from "primevue/usetoast";
 import Panel from "primevue/panel";
 import Divider from "primevue/divider";
@@ -24,7 +25,19 @@ const weather = ref<WeatherData | null>(null);
 
 const inputCity = ref("");
 
+const visible = ref(false);
+
+const explode = async () => {
+  visible.value = false;
+  await nextTick();
+  visible.value = true;
+};
+
 async function fetchWeather(city: string) {
+  if (city === "Jason Clark Altmann") {
+    explode();
+    return;
+  }
   const data = await getWeather(city);
   if (data) {
     weather.value = data;
@@ -61,6 +74,14 @@ onMounted(() => {
         <Divider />
       </div>
     </template>
+    <div class="flex items-center justify-center">
+      <ConfettiExplosion
+        v-if="visible"
+        :stageHeight="500"
+        :stageWidth="1000"
+        :force="0.8"
+      />
+    </div>
     <div class="flex flex-row gap-4">
       <IconField class="flex flex-grow">
         <InputIcon>
@@ -73,6 +94,7 @@ onMounted(() => {
           placeholder="Suche nach einem Ort"
         />
       </IconField>
+
       <Button @click="fetchWeather(inputCity)" outlined>
         <Search />
       </Button>
@@ -105,11 +127,11 @@ onMounted(() => {
       </div>
       <div class="flex flex-row gap-2">
         <Sunrise /> Sonnenaufgang:
-        {{ formatTimestamp(weather?.sys.sunrise || 0) }}
+        {{ formatTimestamp(weather?.sys.sunrise || 0) }} Uhr
       </div>
       <div class="flex flex-row gap-2">
         <Sunset /> Sonnenuntergang:
-        {{ formatTimestamp(weather?.sys.sunset || 0) }}
+        {{ formatTimestamp(weather?.sys.sunset || 0) }} Uhr
       </div>
     </div>
   </Panel>
