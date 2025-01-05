@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick } from "vue";
+import { onMounted, ref, nextTick, defineEmits } from "vue";
 import ConfettiExplosion from "vue-confetti-explosion";
 import { useToast } from "primevue/usetoast";
 import Panel from "primevue/panel";
@@ -27,6 +27,10 @@ const inputCity = ref("");
 
 const visible = ref(false);
 
+const emit = defineEmits<{
+  (e: "city-searched"): void;
+}>();
+
 const explode = async () => {
   visible.value = false;
   await nextTick();
@@ -42,6 +46,7 @@ async function fetchWeather(city: string) {
   if (data) {
     weather.value = data;
     inputCity.value = "";
+    emit("city-searched");
   } else {
     inputCity.value = "";
     toast.add({
