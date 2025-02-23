@@ -72,7 +72,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Panel class="w-fit p-4 m-4">
+  <Panel class="h-full w-full sm:h-fit sm:w-fit p-4 overflow-auto">
     <template #header>
       <div class="flex flex-col">
         <h2 class="text-3xl font-bold">Jasons Wettervorhersage:</h2>
@@ -104,10 +104,10 @@ onMounted(() => {
         <Search />
       </Button>
     </div>
-    <div class="text-3xl font-bold mt-5">
+    <div class="text-2xl sm:text-3xl font-bold mt-5">
       Wetter in {{ weather?.name }}, {{ weather?.sys.country }}
     </div>
-    <div class="flex flex-row gap-4 text-3xl font-bold items-center">
+    <div class="flex flex-row gap-4 text-2xl sm:text-3xl font-bold items-center">
       <img
         :src="`https://openweathermap.org/img/wn/${weather?.weather[0].icon}@2x.png`"
         alt="Weather Icon"
@@ -120,7 +120,7 @@ onMounted(() => {
       </div>
     </div>
     <Divider />
-    <div class="flex flex-col text-lg font-bold mt-8">
+    <div class="flex flex-col text-base sm:text-lg font-bold mt-8">
       <div class="flex flex-row gap-2">
         <Heart /> Gefühlt: {{ weather?.main.feels_like }} °C
       </div>
