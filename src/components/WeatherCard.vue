@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick, defineEmits } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import ConfettiExplosion from "vue-confetti-explosion";
 import { useToast } from "primevue/usetoast";
 import Panel from "primevue/panel";
@@ -28,7 +28,7 @@ const inputCity = ref("");
 const visible = ref(false);
 
 const emit = defineEmits<{
-  (e: "city-searched"): void;
+  (e: "city-searched", city: string): void;
 }>();
 
 const explode = async () => {
@@ -38,21 +38,31 @@ const explode = async () => {
 };
 
 async function fetchWeather(city: string) {
-  if (city === "Jason Clark Altmann") {
+  const trimmedCity = city.trim();
+  if (!trimmedCity) {
+    toast.add({
+      severity: "warn",
+      summary: "Warnung",
+      detail: "Bitte geben Sie einen Ortsnamen ein.",
+      life: 3000,
+    });
+    return;
+  }
+  if (trimmedCity === "Jason Clark Altmann") {
     explode();
     return;
   }
-  const data = await getWeather(city);
+  const data = await getWeather(trimmedCity);
   if (data) {
     weather.value = data;
     inputCity.value = "";
-    emit("city-searched");
+    emit("city-searched", data.name);
   } else {
     inputCity.value = "";
     toast.add({
       severity: "error",
       summary: "Error",
-      detail: `Weather Data for "${city}" not found`,
+      detail: `Weather Data for "${trimmedCity}" not found`,
       life: 3000,
     });
   }
@@ -104,40 +114,51 @@ onMounted(() => {
         <Search />
       </Button>
     </div>
-    <div class="text-2xl sm:text-3xl font-bold mt-5">
-      Wetter in {{ weather?.name }}, {{ weather?.sys.country }}
-    </div>
-    <div class="flex flex-row gap-4 text-2xl sm:text-3xl font-bold items-center">
-      <img
-        :src="`https://openweathermap.org/img/wn/${weather?.weather[0].icon}@2x.png`"
-        alt="Weather Icon"
-      />
-      <div class="flex flex-col">
-        <div>{{ weather?.main.temp }} °C</div>
-        <div>
-          {{ weather?.weather[0].description }}
+    <div v-if="weather">
+      <div class="text-2xl sm:text-3xl font-bold mt-5">
+        Wetter in {{ weather.name }}, {{ weather.sys?.country }}
+      </div>
+      <div
+        class="flex flex-row gap-4 text-2xl sm:text-3xl font-bold items-center"
+      >
+        <img
+          v-if="weather.weather && weather.weather[0]"
+          :src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`"
+          alt="Weather Icon"
+        />
+        <div class="flex flex-col">
+          <div>{{ weather.main?.temp }} °C</div>
+          <div v-if="weather.weather && weather.weather[0]">
+            {{ weather.weather[0].description }}
+          </div>
+        </div>
+      </div>
+      <Divider />
+      <div class="flex flex-col text-base sm:text-lg font-bold mt-8">
+        <div class="flex flex-row gap-2">
+          <Heart /> Gefühlt: {{ weather.main?.feels_like }} °C
+        </div>
+        <div class="flex flex-row gap-2">
+          <Droplets /> Luftfeuchtigkeit: {{ weather.main?.humidity }}%
+        </div>
+        <div class="flex flex-row gap-2">
+          <Wind /> Windgeschwindigkeit: {{ weather.wind?.speed }} km/h
+        </div>
+        <div class="flex flex-row gap-2">
+          <Sunrise /> Sonnenaufgang:
+          {{ formatTimestamp(weather.sys?.sunrise || 0) }} Uhr
+        </div>
+        <div class="flex flex-row gap-2">
+          <Sunset /> Sonnenuntergang:
+          {{ formatTimestamp(weather.sys?.sunset || 0) }} Uhr
         </div>
       </div>
     </div>
-    <Divider />
-    <div class="flex flex-col text-base sm:text-lg font-bold mt-8">
-      <div class="flex flex-row gap-2">
-        <Heart /> Gefühlt: {{ weather?.main.feels_like }} °C
-      </div>
-      <div class="flex flex-row gap-2">
-        <Droplets /> Luftfeuchtigkeit: {{ weather?.main.humidity }}%
-      </div>
-      <div class="flex flex-row gap-2">
-        <Wind /> Windgeschwindigkeit: {{ weather?.wind.speed }} km/h
-      </div>
-      <div class="flex flex-row gap-2">
-        <Sunrise /> Sonnenaufgang:
-        {{ formatTimestamp(weather?.sys.sunrise || 0) }} Uhr
-      </div>
-      <div class="flex flex-row gap-2">
-        <Sunset /> Sonnenuntergang:
-        {{ formatTimestamp(weather?.sys.sunset || 0) }} Uhr
-      </div>
+    <div
+      v-else
+      class="flex justify-center items-center py-8 text-lg font-medium text-gray-500"
+    >
+      Wetterdaten werden geladen...
     </div>
   </Panel>
 </template>

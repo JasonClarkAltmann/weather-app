@@ -12,7 +12,7 @@ const updateBackgroundImage = () => {
 <template>
   <div
     :style="{ backgroundImage: `url(${backgroundImageUrl})` }"
-    class="bg-cover bg-center"
+    class="bg-cover bg-center transition-all duration-700 ease-in-out"
   >
     <div class="flex h-screen items-center justify-center">
       <WeatherCard @city-searched="updateBackgroundImage" />
